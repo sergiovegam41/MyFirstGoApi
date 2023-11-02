@@ -1,17 +1,33 @@
-# Utiliza la imagen oficial de Go como base
-FROM golang:1.17-alpine
+# Use the official Golang image as a parent image
+FROM golang:1.17 AS builder
 
-# Establece el directorio de trabajo dentro del contenedor
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copia los archivos del proyecto al directorio de trabajo
+# Copy the Go modules and download them
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy the rest of the code
 COPY . .
 
-# Compila el proyecto
-RUN go build -o main .
+# Build the application
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o MyFirstGoApi .
 
-# Exponer el puerto en el que se ejecuta la aplicación
+# Use a lightweight alpine image for the runtime environment
+FROM alpine:latest
+
+# Add the necessary certificates for net requests
+RUN apk --no-cache add ca-certificates
+
+# Set the working directory
+WORKDIR /root/
+
+# Copy the binary from the build stage
+COPY --from=builder /app/MyFirstGoApi .
+
+# Expose the port your app runs on
 EXPOSE 8080
 
-# Ejecutar la aplicación cuando se inicie el contenedor
-CMD ["./main"]
+# Command to run the application
+CMD ["./MyFirstGoApi"]
