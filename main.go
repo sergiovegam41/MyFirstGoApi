@@ -29,7 +29,7 @@ func main() {
 	defer client.Disconnect(nil)
 
 	database := client.Database("test-dservice-backend")
-	collection := database.Collection("departments")
+	collection := database.Collection("countries")
 
 	r.GET("/getCountries", func(c *gin.Context) {
 		// Create a new context for this request.
