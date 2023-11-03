@@ -14,6 +14,8 @@ import (
 
 func main() {
 	r := gin.Default()
+  r.Use(cors.Default())
+
 
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://stock-manager:r4mEHcjNNw3z9u3K@cluster0.0eyr1.mongodb.net/stock-manager?retryWrites=true&w=majority"))
 	if err != nil {
